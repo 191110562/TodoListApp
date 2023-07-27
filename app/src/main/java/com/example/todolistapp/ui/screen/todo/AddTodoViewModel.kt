@@ -5,12 +5,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.todolistapp.data.Todo
+import com.example.todolistapp.data.TodoRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
 class AddTodoViewModel @Inject constructor(
-
+    private val repository: TodoRepository
 ):  ViewModel() {
     var addUiState by mutableStateOf(AddUiState())
         private set
@@ -23,6 +24,12 @@ class AddTodoViewModel @Inject constructor(
     private fun validateInput(uiState: ItemDetails = addUiState.itemDetails): Boolean {
         return with(uiState) {
             title.isNotBlank() && description.isNotBlank() && due_date.isNotBlank()
+        }
+    }
+
+    suspend fun saveItem() {
+        if (validateInput()) {
+            repository.insertItem(addUiState.itemDetails.toAdd())
         }
     }
 }

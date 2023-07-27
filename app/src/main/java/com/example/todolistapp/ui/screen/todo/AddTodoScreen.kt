@@ -8,6 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -15,6 +16,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.todolistapp.TodoListTopAppBar
 import java.util.*
 import com.example.todolistapp.R
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,6 +26,7 @@ fun AddTodoScreen(
     canNavigateBack: Boolean = true,
     viewModel: AddTodoViewModel = hiltViewModel()
 ) {
+    val coroutineScope = rememberCoroutineScope()
     Scaffold(
         topBar = {
             TodoListTopAppBar(
@@ -36,7 +39,12 @@ fun AddTodoScreen(
         AddEntryBody(
             addUiState = viewModel.addUiState,
             onItemValueChange = viewModel::updateUiState,
-            onSaveClick = { },
+            onSaveClick = {
+                coroutineScope.launch {
+                    viewModel.saveItem()
+                    navigateBack()
+                }
+            },
             modifier = Modifier
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
