@@ -1,5 +1,6 @@
 package com.example.todolistapp.ui.navigation
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -26,6 +27,7 @@ fun TodoNavHost(
             HomeScreen(
                 navigateToAddEntry = { navController.navigate(Screen.AddTodo.route)},
                 navigateToUpdate = { itemId ->
+                    Log.d("Tag id:", itemId.toString())
                     val route = Screen.DetailTodo.routeWithArgs.replace("{${Screen.DetailTodo.itemIdArg}}", itemId.toString())
                     navController.navigate(route)
                 }

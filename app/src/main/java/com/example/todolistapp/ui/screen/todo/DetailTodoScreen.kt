@@ -7,15 +7,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.todolistapp.TodoListTopAppBar
 import com.example.todolistapp.R
 import com.example.todolistapp.data.Todo
@@ -25,8 +23,11 @@ import com.example.todolistapp.data.Todo
 fun DetailTodoScreen(
     navigateToEditItem: (Int) -> Unit,
     navigateBack: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: DetailTodoViewModel = hiltViewModel()
 ) {
+    val uiState = viewModel.uiState.collectAsState()
+
     Scaffold(
         topBar = {
             TodoListTopAppBar(
@@ -49,7 +50,7 @@ fun DetailTodoScreen(
         }, modifier = modifier
     ) { innerPadding ->
         ItemDetailsBody(
-            todoDetailsUiState = TodoDetailsUiState(),
+            todoDetailsUiState = uiState.value,
             onDelete = { },
             modifier = Modifier
                 .padding(innerPadding)
