@@ -25,6 +25,11 @@ class DetailTodoViewModel @Inject constructor(
                 started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
                 initialValue = TodoDetailsUiState()
             )
+
+    suspend fun deleteItem() {
+        repository.deleteItem(uiState.value.itemDetails.toAdd())
+    }
+
     companion object {
         private const val TIMEOUT_MILLIS = 5_000L
     }

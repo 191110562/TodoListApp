@@ -17,6 +17,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.todolistapp.TodoListTopAppBar
 import com.example.todolistapp.R
 import com.example.todolistapp.data.Todo
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,6 +27,7 @@ fun DetailTodoScreen(
     modifier: Modifier = Modifier,
     viewModel: DetailTodoViewModel = hiltViewModel()
 ) {
+    val coroutineScope = rememberCoroutineScope()
     val uiState = viewModel.uiState.collectAsState()
 
     Scaffold(
@@ -51,7 +53,12 @@ fun DetailTodoScreen(
     ) { innerPadding ->
         ItemDetailsBody(
             todoDetailsUiState = uiState.value,
-            onDelete = { },
+            onDelete = {
+                coroutineScope.launch {
+                    viewModel.deleteItem()
+                    navigateBack()
+                }
+            },
             modifier = Modifier
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
