@@ -1,15 +1,12 @@
 package com.example.todolistapp.ui.screen.todo
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -17,6 +14,10 @@ import com.example.todolistapp.TodoListTopAppBar
 import java.util.*
 import com.example.todolistapp.R
 import kotlinx.coroutines.launch
+import android.app.DatePickerDialog
+import android.text.format.DateFormat
+import androidx.compose.foundation.layout.*
+import androidx.compose.ui.focus.onFocusChanged
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -88,6 +89,22 @@ fun TodoInputForm(
     onValueChange: (ItemDetails) -> Unit = {},
     enabled: Boolean = true
 ) {
+
+    var dueDatePickerDialogShown by remember { mutableStateOf(false) }
+    if (dueDatePickerDialogShown) {
+        val calendar = Calendar.getInstance()
+        val currentYear = calendar.get(Calendar.YEAR)
+        val currentMonth = calendar.get(Calendar.MONTH)
+        val currentDay = calendar.get(Calendar.DAY_OF_MONTH)
+        val datePickerDialog = DatePickerDialog(LocalContext.current, { _, year, month, dayOfMonth ->
+            calendar.set(year, month, dayOfMonth)
+            val date = DateFormat.format("dd MMMM yyyy", calendar).toString()
+            onValueChange(itemDetails.copy(due_date = date))
+            dueDatePickerDialogShown = false
+        }, currentYear, currentMonth, currentDay)
+        datePickerDialog.show()
+    }
+
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_medium))
@@ -118,19 +135,31 @@ fun TodoInputForm(
             enabled = enabled,
             singleLine = true
         )
-        OutlinedTextField(
-            value = itemDetails.due_date,
-            onValueChange = { onValueChange(itemDetails.copy(due_date = it)) },
-            label = { Text(stringResource(R.string.item_due_req)) },
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                unfocusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-            ),
-            modifier = Modifier.fillMaxWidth(),
-            enabled = enabled,
-            singleLine = true
-        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { dueDatePickerDialogShown = true }
+        ) {
+            OutlinedTextField(
+                value = itemDetails.due_date,
+                onValueChange = { onValueChange(itemDetails.copy(due_date = it)) },
+                label = { Text(stringResource(R.string.item_due_req)) },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    disabledContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .onFocusChanged {
+                        if (it.isFocused) {
+                            dueDatePickerDialogShown = true
+                        }
+                    },
+                enabled = enabled,
+                singleLine = true
+            )
+        }
         if (enabled) {
             Text(
                 text = stringResource(R.string.required_fields),
